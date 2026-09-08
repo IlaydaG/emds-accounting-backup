@@ -1,0 +1,24 @@
+{
+  "name": "emds-accounting-backup",
+  "version": "1.0.0",
+  "description": "EMDS muhasebe tablolarini CSV'ye aktarip AES-256 sifreli ZIP olarak Azure Blob Storage'a yedekleyen servis",
+  "main": "src/run.ts",
+  "scripts": {
+    "test-db": "ts-node scripts/test-connection.ts",
+    "discover-schema": "ts-node scripts/discover-schema.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mssql": "^12.7.0"
+  },
+  "devDependencies": {
+    "@types/mssql": "^12.3.0",
+    "@types/node": "^26.5.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}

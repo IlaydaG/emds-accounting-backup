@@ -1,0 +1,8 @@
+[
+  { "table": "APPCARD_VIRTUAL", "partition": "yearly", "periodColumn": null },
+  { "table": "ACCOUNTING_GROUP", "partition": "yearly", "periodColumn": null },
+  { "table": "ACCOUNTING_BRANCH", "partition": "yearly", "periodColumn": null },
+  { "table": "ACCOUNTING_COMPANY", "partition": "yearly", "periodColumn": null },
+  { "table": "ACCOUNTING_RECEIPT", "partition": "yearly", "periodColumn": null },
+  { "table": "ACCOUNTING_RECEIPT_DETAIL", "partition": "monthly", "periodColumn": null }
+]
