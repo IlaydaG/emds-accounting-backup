@@ -1,8 +1,8 @@
 [
-  { "table": "APPCARD_VIRTUAL", "partition": "yearly", "periodColumn": null },
-  { "table": "ACCOUNTING_GROUP", "partition": "yearly", "periodColumn": null },
-  { "table": "ACCOUNTING_BRANCH", "partition": "yearly", "periodColumn": null },
-  { "table": "ACCOUNTING_COMPANY", "partition": "yearly", "periodColumn": null },
-  { "table": "ACCOUNTING_RECEIPT", "partition": "yearly", "periodColumn": null },
-  { "table": "ACCOUNTING_RECEIPT_DETAIL", "partition": "monthly", "periodColumn": null }
+  { "table": "APPCARD_VIRTUAL", "partition": "yearly" },
+  { "table": "ACCOUNTING_GROUP", "partition": "yearly" },
+  { "table": "ACCOUNTING_BRANCH", "partition": "yearly" },
+  { "table": "ACCOUNTING_COMPANY", "partition": "yearly" },
+  { "table": "ACCOUNTING_RECEIPT", "partition": "yearly", "periodColumn": "FIS_TARIHI" },
+  { "table": "ACCOUNTING_RECEIPT_DETAIL", "partition": "monthly", "periodColumn": "KAYIT_TARIHI" }
 ]

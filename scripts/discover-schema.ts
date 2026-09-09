@@ -44,10 +44,10 @@ async function describeTable(source: Source, tableName: string): Promise<void> {
     `);
   const pkColumns = new Set(pk.recordset.map((r) => r.COLUMN_NAME));
 
-  const countResult = await pool.request().query<{ rowCount: number }>(
-    `SELECT COUNT(*) AS rowCount FROM [${tableName.replace(/]/g, ']]')}]`
+  const countResult = await pool.request().query<{ rowTotal: number }>(
+    `SELECT COUNT(*) AS rowTotal FROM [${tableName.replace(/]/g, ']]')}]`
   );
-  const rowCount = countResult.recordset[0]?.rowCount ?? 0;
+  const rowCount = countResult.recordset[0]?.rowTotal ?? 0;
 
   console.log(`  ${tableName} (${rowCount} satır)`);
   for (const col of columns.recordset) {

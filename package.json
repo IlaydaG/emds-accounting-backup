@@ -5,7 +5,9 @@
   "main": "src/run.ts",
   "scripts": {
     "test-db": "ts-node scripts/test-connection.ts",
-    "discover-schema": "ts-node scripts/discover-schema.ts"
+    "discover-schema": "ts-node scripts/discover-schema.ts",
+    "seed": "ts-node scripts/seed-fake-data.ts",
+    "export-csv": "ts-node scripts/export-csv.ts"
   },
   "keywords": [],
   "author": "",

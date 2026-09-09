@@ -6,18 +6,15 @@ export type Source = 'EMDS' | 'EMDS_ARCHIVE' | 'ETS_V5';
 const pools: Partial<Record<Source, sql.ConnectionPool>> = {};
 
 function baseConfig(database: string): sql.config {
-  const trusted = process.env.DB_TRUSTED_CONNECTION === 'true';
-
   return {
     server: process.env.DB_SERVER as string,
     port: Number(process.env.DB_PORT) || 1433,
     database,
-    user: trusted ? undefined : process.env.DB_USER,
-    password: trusted ? undefined : process.env.DB_PASSWORD,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
     options: {
       encrypt: process.env.DB_ENCRYPT === 'true',
       trustServerCertificate: true,
-      trustedConnection: trusted,
     },
   };
 }
