@@ -1,11 +1,19 @@
 import sql from 'mssql';
+import fs from 'fs';
 import path from 'path';
-import { writeCsvFile, CsvWriteResult } from './csv';
+import { writeCsvFile } from './csv';
+import { generatePassword, encryptFileToZip } from './zipEncrypt';
 
 export interface TableConfig {
   table: string;
   partition: 'yearly' | 'monthly';
   periodColumn?: string;
+}
+
+export interface ExportResult {
+  filePath: string;
+  rowCount: number;
+  password: string;
 }
 
 async function getColumns(pool: sql.ConnectionPool, tableName: string): Promise<string[]> {
@@ -53,22 +61,35 @@ function yearRange(year: number): { start: Date; end: Date } {
   };
 }
 
+async function writeAndEncrypt(
+  filePath: string,
+  columns: string[],
+  rows: Record<string, unknown>[]
+): Promise<ExportResult> {
+  const csv = writeCsvFile(filePath, columns, rows);
+  const zipPath = filePath.replace(/\.csv$/, '.zip');
+  const password = generatePassword();
+  await encryptFileToZip(csv.filePath, zipPath, password);
+  fs.unlinkSync(csv.filePath);
+  return { filePath: zipPath, rowCount: csv.rowCount, password };
+}
+
 export async function exportTable(
   pool: sql.ConnectionPool,
   cfg: TableConfig,
   year: number,
   outputRoot: string
-): Promise<CsvWriteResult[]> {
+): Promise<ExportResult[]> {
   const columns = await getColumns(pool, cfg.table);
   const tableDir = path.join(outputRoot, String(year), cfg.table);
 
   if (cfg.partition === 'monthly') {
-    const results: CsvWriteResult[] = [];
+    const results: ExportResult[] = [];
     for (let month = 1; month <= 12; month++) {
       const { start, end } = monthRange(year, month);
       const rows = await queryRows(pool, cfg.table, cfg.periodColumn, start, end);
       const fileName = `${cfg.table}_${year}_${String(month).padStart(2, '0')}.csv`;
-      results.push(writeCsvFile(path.join(tableDir, fileName), columns, rows));
+      results.push(await writeAndEncrypt(path.join(tableDir, fileName), columns, rows));
     }
     return results;
   }
@@ -76,5 +97,5 @@ export async function exportTable(
   const { start, end } = cfg.periodColumn ? yearRange(year) : { start: undefined, end: undefined };
   const rows = await queryRows(pool, cfg.table, cfg.periodColumn, start, end);
   const fileName = `${cfg.table}_${year}.csv`;
-  return [writeCsvFile(path.join(tableDir, fileName), columns, rows)];
+  return [await writeAndEncrypt(path.join(tableDir, fileName), columns, rows)];
 }
