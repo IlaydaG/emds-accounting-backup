@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<title>EMDS Yedek Dosyaları</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+    margin: 0;
+    background: #fafafa;
+    color: #1a1a1a;
+  }
+  header {
+    padding: 20px 32px;
+    border-bottom: 1px solid #e5e5e5;
+    background: #fff;
+  }
+  h1 { font-size: 18px; margin: 0; }
+  #breadcrumb { padding: 16px 32px 0; font-size: 13px; color: #666; }
+  #breadcrumb span { cursor: pointer; color: #2563eb; }
+  #breadcrumb span:hover { text-decoration: underline; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    background: #fff;
+  }
+  th {
+    text-align: left;
+    font-size: 12px;
+    color: #888;
+    font-weight: 500;
+    padding: 10px 32px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  td {
+    padding: 12px 32px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+  }
+  tr.row:hover { background: #f7f9fc; cursor: pointer; }
+  .name-cell { display: flex; align-items: center; gap: 10px; }
+  .icon { font-size: 18px; }
+  .sub { color: #999; font-size: 12px; display: block; }
+  .modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.35);
+    align-items: center; justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 8px; padding: 24px; width: 360px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  }
+  .modal h3 { margin: 0 0 12px; font-size: 15px; }
+  .modal input {
+    width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px;
+    font-size: 14px; margin-bottom: 8px;
+  }
+  .modal .error { color: #d33; font-size: 12px; min-height: 16px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+  button {
+    padding: 8px 14px; border-radius: 6px; border: 1px solid #ddd;
+    background: #fff; cursor: pointer; font-size: 13px;
+  }
+  button.primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+</style>
+</head>
+<body>
+  <header><h1>EMDS Yedek Dosyaları</h1></header>
+  <div id="breadcrumb"></div>
+  <table>
+    <thead>
+      <tr><th>Ad</th><th>Son Güncelleme</th><th>Boyut / İçerik</th></tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <div class="modal-backdrop" id="modal">
+    <div class="modal">
+      <h3 id="modal-title">Parola gerekli</h3>
+      <input type="password" id="password-input" placeholder="Parolayı gir" />
+      <div class="error" id="modal-error"></div>
+      <div class="modal-actions">
+        <button onclick="closeModal()">Vazgeç</button>
+        <button class="primary" onclick="submitPassword()">Aç ve indir</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+let currentPath = '';
+let pendingFile = null;
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString('tr-TR');
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  return (bytes / 1024).toFixed(1) + ' KB';
+}
+
+async function load(path) {
+  currentPath = path;
+  const res = await fetch('/api/browse?path=' + encodeURIComponent(path));
+  const data = await res.json();
+  renderBreadcrumb(path);
+  renderRows(data);
+}
+
+function renderBreadcrumb(path) {
+  const parts = path ? path.split(/[\\/]/) : [];
+  let html = '<span onclick="load(\'\')">output</span>';
+  let acc = '';
+  for (const part of parts) {
+    acc += (acc ? '/' : '') + part;
+    html += ' / <span onclick="load(\'' + acc + '\')">' + part + '</span>';
+  }
+  document.getElementById('breadcrumb').innerHTML = html;
+}
+
+function renderRows(data) {
+  const rows = [];
+  for (const f of data.folders) {
+    const childPath = (data.path ? data.path + '/' : '') + f.name;
+    rows.push(
+      '<tr class="row" onclick="load(\'' + childPath + '\')">' +
+      '<td><div class="name-cell"><span class="icon">📁</span>' + f.name + '</div></td>' +
+      '<td>' + formatDate(f.lastUpdated) + '</td>' +
+      '<td>' + f.itemCount + ' öğe</td>' +
+      '</tr>'
+    );
+  }
+  for (const file of data.files) {
+    const childPath = (data.path ? data.path + '/' : '') + file.name;
+    const isZip = file.name.endsWith('.zip');
+    rows.push(
+      '<tr class="row" onclick="' + (isZip ? 'openPasswordModal(\'' + childPath + '\')' : '') + '">' +
+      '<td><div class="name-cell"><span class="icon">' + (isZip ? '🔒' : '📄') + '</span>' + file.name + '</div></td>' +
+      '<td>' + formatDate(file.lastUpdated) + '</td>' +
+      '<td>' + formatSize(file.size) + '</td>' +
+      '</tr>'
+    );
+  }
+  document.getElementById('rows').innerHTML = rows.join('') || '<tr><td colspan="3" style="padding:32px;color:#999;">Bu klasör boş</td></tr>';
+}
+
+function openPasswordModal(filePath) {
+  pendingFile = filePath;
+  document.getElementById('modal-title').textContent = filePath.split(/[\\/]/).pop();
+  document.getElementById('password-input').value = '';
+  document.getElementById('modal-error').textContent = '';
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('password-input').focus();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  pendingFile = null;
+}
+
+async function submitPassword() {
+  const password = document.getElementById('password-input').value;
+  const errorEl = document.getElementById('modal-error');
+  errorEl.textContent = '';
+
+  const res = await fetch('/api/decrypt', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: pendingFile, password }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    errorEl.textContent = err.error || 'Hata oluştu';
+    return;
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = pendingFile.split(/[\\/]/).pop().replace(/\.zip$/, '.csv');
+  a.click();
+  URL.revokeObjectURL(url);
+  closeModal();
+}
+
+document.getElementById('password-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') submitPassword();
+});
+
+load('');
+</script>
+</body>
+</html>

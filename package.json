@@ -7,7 +7,8 @@
     "test-db": "ts-node scripts/test-connection.ts",
     "discover-schema": "ts-node scripts/discover-schema.ts",
     "seed": "ts-node scripts/seed-fake-data.ts",
-    "export-csv": "ts-node scripts/export-csv.ts"
+    "export-csv": "ts-node scripts/export-csv.ts",
+    "panel": "ts-node panel/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,9 +17,11 @@
   "dependencies": {
     "@zip.js/zip.js": "^2.14.0",
     "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "mssql": "^12.7.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/mssql": "^12.3.0",
     "@types/node": "^26.5.0",
     "ts-node": "^10.9.2",
