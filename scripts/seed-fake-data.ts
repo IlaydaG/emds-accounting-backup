@@ -21,12 +21,20 @@ const GROUPS = [
   { kod: 'MRK', ad: 'Merkez' },
   { kod: 'PRK', ad: 'Perakende' },
   { kod: 'TPT', ad: 'Toptan Satış' },
+  { kod: 'ITH', ad: 'İthalat' },
+  { kod: 'IHR', ad: 'İhracat' },
+  { kod: 'ETC', ad: 'E-Ticaret' },
+  { kod: 'BYI', ad: 'Bayi' },
+  { kod: 'LOJ', ad: 'Lojistik' },
 ];
 
 const COMPANIES = [
   { kod: 'FRM1', unvan: 'ABC Ticaret A.Ş.', vergiNo: '1234567890' },
   { kod: 'FRM2', unvan: 'Yıldız Gıda Ltd. Şti.', vergiNo: '2345678901' },
   { kod: 'FRM3', unvan: 'Deniz Tekstil San. Tic. A.Ş.', vergiNo: '3456789012' },
+  { kod: 'FRM4', unvan: 'Anadolu Elektronik A.Ş.', vergiNo: '4567890123' },
+  { kod: 'FRM5', unvan: 'Marmara İnşaat Ltd. Şti.', vergiNo: '5678901234' },
+  { kod: 'FRM6', unvan: 'Ege Otomotiv San. Tic. A.Ş.', vergiNo: '6789012345' },
 ];
 
 const BRANCH_NAMES = [
@@ -36,7 +44,15 @@ const BRANCH_NAMES = [
   'İzmir Şube',
   'Bursa Şube',
   'Antalya Şube',
+  'Konya Şube',
+  'Adana Şube',
+  'Gaziantep Şube',
+  'Trabzon Şube',
+  'Eskişehir Şube',
+  'Kayseri Şube',
 ];
+
+const CARD_COUNT = 40;
 
 const RECEIPT_DESCRIPTIONS = [
   'Kira ödemesi',
@@ -149,7 +165,7 @@ async function seedBranches(
 }
 
 async function seedCards(pool: sql.ConnectionPool, branchIds: number[]): Promise<void> {
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < CARD_COUNT; i++) {
     await pool
       .request()
       .input('kartNo', `9792${randomInt(1000000000, 9999999999)}`)
@@ -181,7 +197,7 @@ async function seedReceiptsAndDetails(
   let fisSeq = 1;
 
   for (let month = 1; month <= 12; month++) {
-    const receiptsThisMonth = randomInt(20, 30);
+    const receiptsThisMonth = randomInt(40, 60);
 
     for (let i = 0; i < receiptsThisMonth; i++) {
       const seed: ReceiptSeed = {
@@ -270,7 +286,7 @@ async function seedReceiptsAndDetails(
   );
 
   console.log(
-    `Tamamlandı: ${GROUPS.length} grup, ${COMPANIES.length} firma, ${branchIds.length} şube, 15 kart, ${receiptCount} fiş, ${detailCount} fiş detayı.`
+    `Tamamlandı: ${GROUPS.length} grup, ${COMPANIES.length} firma, ${branchIds.length} şube, ${CARD_COUNT} kart, ${receiptCount} fiş, ${detailCount} fiş detayı.`
   );
 
   await pool.close();
