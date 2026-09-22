@@ -8,13 +8,15 @@
     "discover-schema": "ts-node scripts/discover-schema.ts",
     "seed": "ts-node scripts/seed-fake-data.ts",
     "export-csv": "ts-node scripts/export-csv.ts",
-    "panel": "ts-node panel/server.ts"
+    "panel": "ts-node panel/server.ts",
+    "upload": "ts-node scripts/upload-to-azure.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@azure/storage-blob": "^12.33.0",
     "@zip.js/zip.js": "^2.14.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
