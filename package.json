@@ -9,7 +9,8 @@
     "seed": "ts-node scripts/seed-fake-data.ts",
     "export-csv": "ts-node scripts/export-csv.ts",
     "panel": "ts-node panel/server.ts",
-    "upload": "ts-node scripts/upload-to-azure.ts"
+    "upload": "ts-node scripts/upload-to-azure.ts",
+    "pipeline": "ts-node src/run.ts"
   },
   "keywords": [],
   "author": "",
